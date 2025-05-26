@@ -4,8 +4,366 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Telegram API Secure Gateway</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #0088cc;
+            --secondary-color: #2b5ce6;
+            --accent-color: #00d4aa;
+            --background-color: #0d1117;
+            --surface-color: #161b22;
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --border-color: #30363d;
+            --success-color: #238636;
+            --warning-color: #f85149;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--background-color) 0%, #161b22 100%);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 0;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 136, 204, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+            animation: shimmer 2s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            position: relative;
+            z-index: 1;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255,255,255,0.2);
+            padding: 10px 20px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            z-index: 1;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            background: var(--success-color);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .section {
+            background: var(--surface-color);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+        }
+
+        .section h2 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section h2::before {
+            content: '🔒';
+            font-size: 0.8em;
+        }
+
+        .features {
+            margin-top: 20px;
+        }
+
+        .features ul {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .features li {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 15px 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .features li:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(0, 136, 204, 0.4);
+        }
+
+        .features li::before {
+            content: '✓';
+            color: var(--accent-color);
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .api-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: var(--background-color);
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid var(--border-color);
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .api-url {
+            flex: 1;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+            color: var(--accent-color);
+            background: rgba(0, 212, 170, 0.1);
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--accent-color);
+            min-width: 250px;
+        }
+
+        .copy-button {
+            background: linear-gradient(135deg, var(--accent-color), var(--primary-color));
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .copy-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 212, 170, 0.4);
+        }
+
+        .copy-button:active {
+            transform: translateY(0);
+        }
+
+        .code-tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            background: var(--background-color);
+            padding: 5px;
+        }
+
+        .tab-button {
+            flex: 1;
+            background: transparent;
+            color: var(--text-secondary);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .tab-button.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            box-shadow: 0 2px 10px rgba(0, 136, 204, 0.3);
+        }
+
+        .tab-button:hover:not(.active) {
+            background: rgba(139, 148, 158, 0.1);
+            color: var(--text-primary);
+        }
+
+        .tab-content {
+            display: none;
+            background: var(--background-color);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .code-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .language-name {
+            font-weight: bold;
+            color: white;
+        }
+
+        .copy-code-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background 0.3s ease;
+        }
+
+        .copy-code-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        pre {
+            margin: 0;
+            padding: 20px;
+            background: #0d1117;
+            overflow-x: auto;
+        }
+
+        code {
+            font-family: 'Courier New', Monaco, monospace;
+            font-size: 0.9em;
+            line-height: 1.5;
+            color: #f0f6fc;
+        }
+
+        /* Syntax highlighting */
+        .keyword { color: #ff7b72; }
+        .string { color: #a5d6ff; }
+        .comment { color: #8b949e; font-style: italic; }
+        .function { color: #d2a8ff; }
+        .variable { color: #ffa657; }
+        .number { color: #79c0ff; }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            background: var(--surface-color);
+            border-radius: 15px;
+            border: 1px solid var(--border-color);
+            margin-top: 40px;
+        }
+
+        footer a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s ease;
+        }
+
+        footer a:hover {
+            color: var(--primary-color);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--success-color);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .api-container {
+                flex-direction: column;
+            }
+            
+            .api-url {
+                min-width: 100%;
+                text-align: center;
+            }
+            
+            .code-tabs {
+                flex-wrap: wrap;
+            }
+            
+            .tab-button {
+                min-width: 120px;
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -13,97 +371,470 @@
             <h1>Telegram API Secure Gateway</h1>
             <div class="status-badge">
                 <div class="status-indicator"></div>
-                <span>System is Active</span>
+                <span>Hệ thống đang hoạt động</span>
             </div>
         </header>
 
-        <section class="info-section">
-            <h2>About This Service</h2>
-            <p>Welcome to the Telegram API Secure Proxy Service. This gateway provides stable and reliable access to the Telegram API in regions where it may be restricted.</p>
+        <section class="section">
+            <h2>Giới thiệu dịch vụ</h2>
+            <p>Chào mừng đến với dịch vụ Telegram API Secure Proxy. Gateway này cung cấp truy cập ổn định và đáng tin cậy tới Telegram API trong các khu vực bị hạn chế.</p>
             
             <div class="features">
-                <h3>Features:</h3>
+                <h3>Tính năng nổi bật:</h3>
                 <ul>
-                    <li>Unlimited users and API requests</li>
-                    <li>100% stability against network restrictions</li>
-                    <li>Secure data transmission</li>
+                    <li>Không giới hạn người dùng và API requests</li>
+                    <li>100% ổn định chống lại hạn chế mạng</li>
+                    <li>Truyền dữ liệu an toàn và bảo mật</li>
+                    <li>Hỗ trợ đa ngôn ngữ lập trình</li>
+                    <li>Tốc độ phản hồi nhanh chóng</li>
+                    <li>Hoạt động 24/7 không gián đoạn</li>
                 </ul>
             </div>
         </section>
 
-        <section class="usage-section">
-            <h2>How to Use</h2>
-            <p>Replace the standard Telegram API address with the following URL:</p>
+        <section class="section">
+            <h2>Hướng dẫn sử dụng</h2>
+            <p>Thay thế địa chỉ Telegram API tiêu chuẩn bằng URL sau:</p>
             
             <div class="api-container">
                 <div class="api-url" id="apiUrl">https://aiko-api-proxy.pages.dev/api/bot</div>
-                <button class="copy-button" onclick="copyToClipboard()">Copy URL</button>
+                <button class="copy-button" onclick="copyToClipboard()">📋 Sao chép URL</button>
             </div>
         </section>
 
-        <section class="code-examples">
-            <h2>Code Examples</h2>
+        <section class="section">
+            <h2>Ví dụ code mẫu</h2>
             
             <div class="code-tabs">
-                <button class="tab-button active" onclick="switchTab('js')">JavaScript</button>
+                <button class="tab-button active" onclick="switchTab('javascript')">JavaScript</button>
                 <button class="tab-button" onclick="switchTab('python')">Python</button>
+                <button class="tab-button" onclick="switchTab('php')">PHP</button>
+                <button class="tab-button" onclick="switchTab('nodejs')">Node.js</button>
+                <button class="tab-button" onclick="switchTab('curl')">cURL</button>
+                <button class="tab-button" onclick="switchTab('go')">Go</button>
             </div>
             
-            <div class="tab-content active" id="js-tab">
-                <pre><code class="language-javascript">
-const Http = new XMLHttpRequest();
-let botToken = "YOUR_BOT_TOKEN"
-let ChatID = "YOUR_CHAT_ID"
-let txtmessage = "Hello from Secure API"
+            <div class="tab-content active" id="javascript-tab">
+                <div class="code-header">
+                    <span class="language-name">JavaScript (Vanilla)</span>
+                    <button class="copy-code-btn" onclick="copyCode('javascript')">Sao chép</button>
+                </div>
+                <pre><code id="javascript-code">const sendTelegramMessage = (message) => {
+    const botToken = "YOUR_BOT_TOKEN";
+    const chatId = "YOUR_CHAT_ID";
+    const apiUrl = `https://aiko-api-proxy.pages.dev/api/bot${botToken}/sendMessage`;
+    
+    const params = new URLSearchParams({
+        text: message,
+        chat_id: chatId,
+        parse_mode: "Markdown",
+        disable_web_page_preview: true
+    });
+    
+    fetch(`${apiUrl}?${params}`)
+        .then(response => response.json())
+        .then(data => {
+            console.log("✅ Tin nhắn đã được gửi thành công:", data);
+        })
+        .catch(error => {
+            console.error("❌ Lỗi khi gửi tin nhắn:", error);
+        });
+};
 
-var url = 'https://aiko-api-proxy.pages.dev/api/bot' + botToken + 
-          '/sendMessage?text=' + txtmessage + 
-          '&chat_id=' + ChatID + 
-          "&parse_mode=Markdown&disable_web_page_preview=True";
-
-Http.open("GET", url);
-Http.send();
-
-Http.onreadystatechange = function() {
-    if(this.readyState == 4 && this.status == 200) {
-        console.log("Message sent successfully");
-    }
-}
-                </code></pre>
+// Sử dụng
+sendTelegramMessage("Xin chào từ Secure API! 🚀");</code></pre>
             </div>
             
             <div class="tab-content" id="python-tab">
-                <pre><code class="language-python">
-import requests
+                <div class="code-header">
+                    <span class="language-name">Python</span>
+                    <button class="copy-code-btn" onclick="copyCode('python')">Sao chép</button>
+                </div>
+                <pre><code id="python-code">import requests
+import json
 
-def send_telegram_msg(msg):
-    token = "YOUR_BOT_TOKEN"
-    chat_id = "YOUR_CHAT_ID"
-    url = "https://aiko-api-proxy.pages.dev/api/bot" + token + "/sendMessage"
+class TelegramAPI:
+    def __init__(self, bot_token):
+        self.bot_token = bot_token
+        self.base_url = f"https://aiko-api-proxy.pages.dev/api/bot{bot_token}"
     
-    payload = {
-        "text": msg,
-        "chat_id": chat_id,
-        "parse_mode": "Markdown",
-        "disable_web_page_preview": True
+    def send_message(self, chat_id, message, parse_mode="Markdown"):
+        """Gửi tin nhắn qua Telegram API"""
+        url = f"{self.base_url}/sendMessage"
+        
+        payload = {
+            "chat_id": chat_id,
+            "text": message,
+            "parse_mode": parse_mode,
+            "disable_web_page_preview": True
+        }
+        
+        try:
+            response = requests.post(url, json=payload)
+            response.raise_for_status()
+            
+            result = response.json()
+            print("✅ Tin nhắn đã được gửi thành công!")
+            return result
+            
+        except requests.exceptions.RequestException as e:
+            print(f"❌ Lỗi khi gửi tin nhắn: {e}")
+            return None
+
+# Sử dụng
+if __name__ == "__main__":
+    bot = TelegramAPI("YOUR_BOT_TOKEN")
+    bot.send_message("YOUR_CHAT_ID", "Xin chào từ Python! 🐍")</code></pre>
+            </div>
+
+            <div class="tab-content" id="php-tab">
+                <div class="code-header">
+                    <span class="language-name">PHP</span>
+                    <button class="copy-code-btn" onclick="copyCode('php')">Sao chép</button>
+                </div>
+                <pre><code id="php-code"><?php
+class TelegramAPI {
+    private $botToken;
+    private $baseUrl;
+    
+    public function __construct($botToken) {
+        $this->botToken = $botToken;
+        $this->baseUrl = "https://aiko-api-proxy.pages.dev/api/bot" . $botToken;
     }
     
-    response = requests.get(url, params=payload)
-    return response.json()
+    public function sendMessage($chatId, $message, $parseMode = "Markdown") {
+        $url = $this->baseUrl . "/sendMessage";
+        
+        $data = [
+            'chat_id' => $chatId,
+            'text' => $message,
+            'parse_mode' => $parseMode,
+            'disable_web_page_preview' => true
+        ];
+        
+        $options = [
+            'http' => [
+                'header' => "Content-type: application/x-www-form-urlencoded\r\n",
+                'method' => 'POST',
+                'content' => http_build_query($data)
+            ]
+        ];
+        
+        $context = stream_context_create($options);
+        $result = file_get_contents($url, false, $context);
+        
+        if ($result === FALSE) {
+            echo "❌ Lỗi khi gửi tin nhắn\n";
+            return false;
+        }
+        
+        echo "✅ Tin nhắn đã được gửi thành công!\n";
+        return json_decode($result, true);
+    }
+}
 
-user_msg = input("Please enter your message: ")
-result = send_telegram_msg(user_msg)
-print("Message sent successfully!")
-                </code></pre>
+// Sử dụng
+$telegram = new TelegramAPI("YOUR_BOT_TOKEN");
+$telegram->sendMessage("YOUR_CHAT_ID", "Xin chào từ PHP! 🐘");
+?></code></pre>
+            </div>
+
+            <div class="tab-content" id="nodejs-tab">
+                <div class="code-header">
+                    <span class="language-name">Node.js (Express)</span>
+                    <button class="copy-code-btn" onclick="copyCode('nodejs')">Sao chép</button>
+                </div>
+                <pre><code id="nodejs-code">const express = require('express');
+const axios = require('axios');
+
+const app = express();
+app.use(express.json());
+
+class TelegramBot {
+    constructor(token) {
+        this.token = token;
+        this.baseURL = `https://aiko-api-proxy.pages.dev/api/bot${token}`;
+    }
+
+    async sendMessage(chatId, text, options = {}) {
+        try {
+            const response = await axios.post(`${this.baseURL}/sendMessage`, {
+                chat_id: chatId,
+                text: text,
+                parse_mode: options.parseMode || 'Markdown',
+                disable_web_page_preview: options.disablePreview || true,
+                ...options
+            });
+
+            console.log('✅ Message sent successfully');
+            return response.data;
+        } catch (error) {
+            console.error('❌ Error sending message:', error.message);
+            throw error;
+        }
+    }
+
+    async sendPhoto(chatId, photo, caption = '') {
+        try {
+            const response = await axios.post(`${this.baseURL}/sendPhoto`, {
+                chat_id: chatId,
+                photo: photo,
+                caption: caption,
+                parse_mode: 'Markdown'
+            });
+
+            console.log('✅ Photo sent successfully');
+            return response.data;
+        } catch (error) {
+            console.error('❌ Error sending photo:', error.message);
+            throw error;
+        }
+    }
+}
+
+// Sử dụng
+const bot = new TelegramBot('YOUR_BOT_TOKEN');
+
+app.post('/webhook', async (req, res) => {
+    try {
+        const { message } = req.body;
+        if (message && message.text) {
+            await bot.sendMessage(message.chat.id, 
+                `Bạn đã gửi: "${message.text}" 🤖`);
+        }
+        res.sendStatus(200);
+    } catch (error) {
+        console.error('Webhook error:', error);
+        res.sendStatus(500);
+    }
+});
+
+app.listen(3000, () => {
+    console.log('🚀 Bot server running on port 3000');
+});</code></pre>
+            </div>
+
+            <div class="tab-content" id="curl-tab">
+                <div class="code-header">
+                    <span class="language-name">cURL (Command Line)</span>
+                    <button class="copy-code-btn" onclick="copyCode('curl')">Sao chép</button>
+                </div>
+                <pre><code id="curl-code"># Gửi tin nhắn text đơn giản
+curl -X POST "https://aiko-api-proxy.pages.dev/api/botYOUR_BOT_TOKEN/sendMessage" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "chat_id": "YOUR_CHAT_ID",
+       "text": "Xin chào từ cURL! 🌐",
+       "parse_mode": "Markdown",
+       "disable_web_page_preview": true
+     }'
+
+# Gửi tin nhắn với keyboard inline
+curl -X POST "https://aiko-api-proxy.pages.dev/api/botYOUR_BOT_TOKEN/sendMessage" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "chat_id": "YOUR_CHAT_ID",
+       "text": "Chọn một tùy chọn:",
+       "reply_markup": {
+         "inline_keyboard": [
+           [
+             {"text": "✅ Đồng ý", "callback_data": "agree"},
+             {"text": "❌ Từ chối", "callback_data": "disagree"}
+           ]
+         ]
+       }
+     }'
+
+# Gửi ảnh với caption
+curl -X POST "https://aiko-api-proxy.pages.dev/api/botYOUR_BOT_TOKEN/sendPhoto" \
+     -H "Content-Type: application/json" \
+     -d '{
+       "chat_id": "YOUR_CHAT_ID",
+       "photo": "https://example.com/image.jpg",
+       "caption": "Đây là một bức ảnh đẹp! 📸"
+     }'
+
+# Lấy thông tin về bot
+curl -X GET "https://aiko-api-proxy.pages.dev/api/botYOUR_BOT_TOKEN/getMe"</code></pre>
+            </div>
+
+            <div class="tab-content" id="go-tab">
+                <div class="code-header">
+                    <span class="language-name">Go (Golang)</span>
+                    <button class="copy-code-btn" onclick="copyCode('go')">Sao chép</button>
+                </div>
+                <pre><code id="go-code">package main
+
+import (
+    "bytes"
+    "encoding/json"
+    "fmt"
+    "io/ioutil"
+    "net/http"
+    "time"
+)
+
+type TelegramBot struct {
+    Token   string
+    BaseURL string
+}
+
+type SendMessageRequest struct {
+    ChatID                string `json:"chat_id"`
+    Text                  string `json:"text"`
+    ParseMode             string `json:"parse_mode,omitempty"`
+    DisableWebPagePreview bool   `json:"disable_web_page_preview,omitempty"`
+}
+
+type TelegramResponse struct {
+    OK     bool        `json:"ok"`
+    Result interface{} `json:"result"`
+}
+
+func NewTelegramBot(token string) *TelegramBot {
+    return &TelegramBot{
+        Token:   token,
+        BaseURL: fmt.Sprintf("https://aiko-api-proxy.pages.dev/api/bot%s", token),
+    }
+}
+
+func (bot *TelegramBot) SendMessage(chatID, message string) (*TelegramResponse, error) {
+    url := fmt.Sprintf("%s/sendMessage", bot.BaseURL)
+    
+    payload := SendMessageRequest{
+        ChatID:                chatID,
+        Text:                  message,
+        ParseMode:             "Markdown",
+        DisableWebPagePreview: true,
+    }
+    
+    jsonData, err := json.Marshal(payload)
+    if err != nil {
+        return nil, fmt.Errorf("❌ Lỗi marshal JSON: %v", err)
+    }
+    
+    client := &http.Client{Timeout: 30 * time.Second}
+    resp, err := client.Post(url, "application/json", bytes.NewBuffer(jsonData))
+    if err != nil {
+        return nil, fmt.Errorf("❌ Lỗi HTTP request: %v", err)
+    }
+    defer resp.Body.Close()
+    
+    body, err := ioutil.ReadAll(resp.Body)
+    if err != nil {
+        return nil, fmt.Errorf("❌ Lỗi đọc response: %v", err)
+    }
+    
+    var telegramResp TelegramResponse
+    if err := json.Unmarshal(body, &telegramResp); err != nil {
+        return nil, fmt.Errorf("❌ Lỗi unmarshal response: %v", err)
+    }
+    
+    if !telegramResp.OK {
+        return nil, fmt.Errorf("❌ Telegram API trả về lỗi")
+    }
+    
+    fmt.Println("✅ Tin nhắn đã được gửi thành công!")
+    return &telegramResp, nil
+}
+
+func main() {
+    bot := NewTelegramBot("YOUR_BOT_TOKEN")
+    
+    _, err := bot.SendMessage("YOUR_CHAT_ID", "Xin chào từ Go! 🐹")
+    if err != nil {
+        fmt.Printf("Lỗi: %v\n", err)
+        return
+    }
+    
+    fmt.Println("🚀 Bot Go đang hoạt động!")
+}</code></pre>
             </div>
         </section>
 
         <footer>
-            <p>License: <a href="https://github.com/Github-Aiko/Telegram-API-Proxy/blob/main/LICENSE" target="_blank">GPL-3.0</a></p>
+            <p>Giấy phép: <a href="https://github.com/Github-Aiko/Telegram-API-Proxy/blob/main/LICENSE" target="_blank">GPL-3.0</a> | 
+            Được phát triển với ❤️ cho cộng đồng</p>
         </footer>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
-    <script src="js/main.js"></script>
+    <div class="notification" id="notification">
+        📋 Đã sao chép vào clipboard!
+    </div>
+
+    <script>
+        function switchTab(language) {
+            // Ẩn tất cả tab content
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Bỏ active class khỏi tất cả tab buttons
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // Hiển thị tab được chọn
+            document.getElementById(language + '-tab').classList.add('active');
+            
+            // Thêm active class cho button được chọn
+            event.target.classList.add('active');
+        }
+
+        function copyToClipboard() {
+            const apiUrl = document.getElementById('apiUrl').textContent;
+            navigator.clipboard.writeText(apiUrl).then(() => {
+                showNotification('📋 URL đã được sao chép!');
+            }).catch(err => {
+                console.error('Lỗi sao chép:', err);
+            });
+        }
+
+        function copyCode(language) {
+            const codeElement = document.getElementById(language + '-code');
+            const code = codeElement.textContent;
+            
+            navigator.clipboard.writeText(code).then(() => {
+                showNotification(`📋 Code ${language.toUpperCase()} đã được sao chép!`);
+            }).catch(err => {
+                console.error('Lỗi sao chép code:', err);
+            });
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Thêm hiệu ứng hover cho các section
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = document.querySelectorAll('.section');
+            
+            sections.forEach(section => {
+                section.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px)';
+                });
+                
+                section.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                });
+            });
+        });
+
+        // Smooth scrolling cho các liên kết nội bộ
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
 </body>
 </html>
