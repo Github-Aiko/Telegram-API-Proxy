@@ -139,7 +139,7 @@ async function performSecurityChecks(request, env) {
 
 async function parseRequest(request) {
     const url = new URL(request.url);
-    const path = url.pathname.replace('/api', '');
+    const path = url.pathname.replace('', '');
     const clientIP = getClientIP(request);
     
     if (!URL_PATH_REGEX.test(path)) {
